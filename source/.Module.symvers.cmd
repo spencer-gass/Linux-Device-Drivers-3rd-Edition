@@ -1,0 +1,1 @@
+savedcmd_/home/sgass/Projects/Personal/ldd3/source/Module.symvers :=  scripts/mod/modpost -M        -o /home/sgass/Projects/Personal/ldd3/source/Module.symvers -T /home/sgass/Projects/Personal/ldd3/source/modules.order -i Module.symvers -e 

@@ -1,0 +1,8 @@
+#!/bin/bash
+qemu -enable-kvm \
+-kernel $LDD_ROOT/kernel/linux-6.8/arch/x86_64/boot/bzImage \
+-initrd $LDD_ROOT/initramfs.cpio.gz \
+-append 'console=ttyS0' \
+-nographic \
+-netdev user,id=host_net,hostfwd=tcp::7023-:23 \
+-device e1000,mac=52:54:00:12:34:50,netdev=host_net \

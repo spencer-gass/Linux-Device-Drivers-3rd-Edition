@@ -1,0 +1,1 @@
+savedcmd_/home/sgass/Projects/Personal/ldd3/source/hello_world.ko := ld -r -m elf_x86_64 -z noexecstack --no-warn-rwx-segments --build-id=sha1  -T scripts/module.lds -o /home/sgass/Projects/Personal/ldd3/source/hello_world.ko /home/sgass/Projects/Personal/ldd3/source/hello_world.o /home/sgass/Projects/Personal/ldd3/source/hello_world.mod.o
