@@ -1,7 +1,7 @@
 # Check if the KERNELRELEASE variable is set to determine the build context
 ifneq ($(KERNELRELEASE),)
     # Use the MODULE variable to specify which module to build
-    obj-m := $(MODULE).o
+    obj-m := module-parameters.o
 
 # Fallback for direct invocation from the command line
 else
@@ -12,10 +12,7 @@ PWD := $(shell pwd)
 
 # Default target to build the specified module
 default:
-ifndef MODULE
-	$(error MODULE is not defined. Use 'make MODULE=<module_name>')
-endif
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) MODULE=$(MODULE) modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
 # Clean target to remove build artifacts
 # clean:
