@@ -1,2 +1,8 @@
 kernel/*
 nfs_dir/*
+source/*.o
+source/*.ko
+source/*.mod*
+source/.*
+source/modules.order
+sourceModule.symvers
