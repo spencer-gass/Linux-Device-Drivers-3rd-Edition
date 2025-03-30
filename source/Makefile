@@ -1,16 +1,28 @@
-# If KERNELRELEASE is defined, we've been invoked from the
-# kernel build system and can use its language.
+# Check if the KERNELRELEASE variable is set to determine the build context
 ifneq ($(KERNELRELEASE),)
-	obj-m := hello_world.o
+    # Use the MODULE variable to specify which module to build
+    obj-m := $(MODULE).o
 
-# Otherwise we were called directly from the command
-# line; invoke the kernel build system.
+# Fallback for direct invocation from the command line
 else
 
-	KERNELDIR ?= ${LDD_ROOT}/kernel/linux-6.8
-	PWD := $(shell pwd)
+# Set the kernel directory and current working directory
+KERNELDIR ?= ${LDD_ROOT}/kernel/linux-6.8
+PWD := $(shell pwd)
 
+# Default target to build the specified module
 default:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+ifndef MODULE
+	$(error MODULE is not defined. Use 'make MODULE=<module_name>')
+endif
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) MODULE=$(MODULE) modules
+
+# Clean target to remove build artifacts
+# clean:
+#	 rm -f *.o *.ko *.mod.* *.mod modules.order Module.symvers
+
+.PHONY: clean
+clean:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
 
 endif
