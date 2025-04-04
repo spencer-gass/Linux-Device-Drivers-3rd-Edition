@@ -20,4 +20,4 @@ module_exit(m_exit);
 // Module Metadata
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Spencer Gass");
-MODULE_DESCRIPTION("Hello World program");
+MODULE_DESCRIPTION("Hello world module.");
