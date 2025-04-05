@@ -29,6 +29,7 @@ int scull_release(struct inode *inode, struct file *filp)
 }
 
 int scull_trim(struct scull_dev *dev){
+
     struct scull_qset *next, *dptr;
     int qset = dev->qset;
     int i;
