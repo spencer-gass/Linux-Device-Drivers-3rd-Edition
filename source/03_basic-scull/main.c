@@ -43,6 +43,8 @@ static int __init m_init(void)
 	int result = 0;
 	dev_t devno = MKDEV(scull_major, scull_minor);
 
+	printk(KERN_WARNING MODULE_NAME " loaded\n");
+
 	// If scull major is set to a non-zero value by the user, then use the supplied values
 	if (scull_major){
 		// int register_chrdev_region(dev_t first, unsigned int count, char *name);
@@ -58,6 +60,7 @@ static int __init m_init(void)
 		return result;
 	}
 
+	// Create scull data structure
 	scull_dev = kmalloc(sizeof(struct scull_dev), GFP_KERNEL);
 
 	if (!scull_dev){
@@ -65,6 +68,7 @@ static int __init m_init(void)
 		return -ENOMEM;
 	}
 
+	// Register the character device
 	result = scull_setup_cdev(scull_dev, 0);
 	if (result < 0) {
 		printk(KERN_NOTICE "Error %d adding scull\n", result);
