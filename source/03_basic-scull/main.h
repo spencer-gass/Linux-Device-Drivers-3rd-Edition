@@ -1,6 +1,7 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#define SCULL_NDEVS 4
 #define MODULE_NAME "basic-scull"
 
 struct scull_qset {
