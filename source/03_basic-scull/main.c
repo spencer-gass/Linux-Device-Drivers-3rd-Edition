@@ -55,12 +55,12 @@ static int scull_dev_init(struct scull_dev *dev, int index)
 		return -ENOMEM;
 	}
 
-    dev->data       = NULL;
-    dev->quantum    = 0;
-    dev->qset	    = 0;
+    dev->quantum    = 4000;
+    dev->qset	    = 1000;
     dev->size	    = 0;
     dev->access_key = 0;
     sema_init(&dev->sem, 1);
+	scull_dev_data_init(dev);
 
     // Register char device
     result = scull_cdev_init(dev, index);

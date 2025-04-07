@@ -3,6 +3,7 @@
 
 int scull_open(struct inode *inode, struct file *filp);
 int scull_release(struct inode *inode, struct file *filp);
+int scull_dev_data_init(struct scull_dev *dev);
 int scull_trim(struct scull_dev *dev);
 struct scull_qset *scull_follow(struct scull_dev *dev, int qset_idx);
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos);
