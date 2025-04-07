@@ -109,21 +109,6 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
     dptr = scull_follow(dev, item);
 
-    //TODO(sgass) remove, temp debug only
-    printk("\n READ: \n");
-    printk("count       %ld\n", count);
-    printk("f_pos       %lld\n", *f_pos);
-    printk("*scull_dev  %p\n", dev);
-    printk("quantum     %d\n", quantum);
-    printk("qset        %d\n", qset);
-    printk("itemsize    %d\n", itemsize);
-    printk("item        %d\n", item);
-    printk("rest        %d\n", rest);
-    printk("s_pos       %d\n", s_pos);
-    printk("q_pos       %d\n", q_pos);
-    printk("dptr        %p\n", dptr);
-    printk("dptr->data  %p\n", dptr->data);
-
     if (dptr == NULL || !dptr->data || !dptr->data[s_pos])
         goto out;
 
@@ -132,7 +117,6 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
         count = quantum - q_pos;
 
     if (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)){
-        printk("copy fail 4\n");
         retval = -EFAULT;
         goto out;
     }
@@ -169,19 +153,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
     // Traverse to the indicated quantum
     dptr = scull_follow(dev,item);
-    //TODO(sgass) remove, temp debug only
-    printk("\n WRITE: \n");
-    printk("count       %ld\n", count);
-    printk("f_pos       %lld\n", *f_pos);
-    printk("*scull_dev  %p\n", dev);
-    printk("quantum     %d\n", quantum);
-    printk("qset        %d\n", qset);
-    printk("itemsize    %d\n", itemsize);
-    printk("item        %d\n", item);
-    printk("rest        %d\n", rest);
-    printk("s_pos       %d\n", s_pos);
-    printk("q_pos       %d\n", q_pos);
-    printk("dptr        %p\n", dptr);
     if (!dptr){
         printk(KERN_WARNING "scull_dev isn't initialized.");
         goto out;
@@ -189,7 +160,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     if (!dptr->data) {
         dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
         if (!dptr->data){
-            printk("kmalloc failed 1");
             goto out;
         }
         memset(dptr->data, 0, qset * sizeof(char *));
@@ -197,7 +167,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     if (!dptr->data[s_pos]) {
         dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
         if (!dptr->data[s_pos]){
-            printk("kmalloc failed 2");
             goto out;
         }
     }
@@ -208,7 +177,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
     if (copy_from_user(dptr->data[s_pos]+q_pos, buf, count)){
         retval = -EFAULT;
-            printk("copy failed 1");
         goto out;
     }
 
