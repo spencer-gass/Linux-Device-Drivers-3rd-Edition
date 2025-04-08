@@ -55,9 +55,9 @@ static int scull_dev_init(struct scull_dev *dev, int index)
 		return -ENOMEM;
 	}
 
-    dev->quantum    = 4000;
-    dev->qset	    = 1000;
-    dev->size	    = 0;
+    dev->block_size = 4000;
+    dev->block_list_size = 1000;
+    dev->size = 0;
     dev->access_key = 0;
     sema_init(&dev->sem, 1);
 	scull_dev_data_init(dev);
