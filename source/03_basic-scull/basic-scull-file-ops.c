@@ -31,7 +31,7 @@ int scull_release(struct inode *inode, struct file *filp)
 
 int scull_dev_data_init(struct scull_dev *dev)
 {
-    dev->data = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+    dev->data = kmalloc(sizeof(struct scull_list_node), GFP_KERNEL);
     if (!dev->data){
         printk(KERN_WARNING "Failed to kmalloc scull_dev data");
         return -ENOMEM;
@@ -43,13 +43,13 @@ int scull_dev_data_init(struct scull_dev *dev)
 
 int scull_trim(struct scull_dev *dev){
 
-    struct scull_qset *next, *dptr;
-    int qset = dev->qset;
+    struct scull_list_node *next, *dptr;
+    int block_list_size = dev->block_list_size;
     int i;
 
     for (dptr = dev->data; dptr; dptr = next){
         if(dptr->data){
-            for (i = 0; i < qset; i ++){
+            for (i = 0; i < block_list_size; i ++){
                 kfree(dptr->data[i]);
             }
             kfree(dptr->data);
@@ -62,11 +62,11 @@ int scull_trim(struct scull_dev *dev){
     return 0;
 }
 
-struct scull_qset *scull_follow(struct scull_dev *dev, int qset_idx)
+struct scull_list_node *scull_follow(struct scull_dev *dev, int list_node_idx)
 {
-    struct scull_qset *qsptr = dev->data;
+    struct scull_list_node *qsptr = dev->data;
     int i;
-    for (i = 0; i < qset_idx; i++){
+    for (i = 0; i < list_node_idx; i++){
         qsptr = qsptr->next;
     }
     return qsptr;
@@ -75,24 +75,15 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_idx)
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
 
-    /*TODO(sgass) rename:
-        quantum -> quantum_size
-        qset    -> qset_length
-        itemsize-> qset_size
-        item    -> qset_idx
-        rest    -> qset_byte_ofs
-        s_pos   -> quantum_idx
-        q_pos   -> quantum_byte_ofs
-    */
     struct scull_dev *dev = filp->private_data;
-    struct scull_qset *dptr;
-    int quantum = dev->quantum;
-    int qset = dev->qset;
-    int itemsize = quantum * qset;
-    int item;
-    int s_pos;
-    int q_pos;
-    int rest;
+    struct scull_list_node *dptr;
+    int block_size = dev->block_size;
+    int block_list_size = dev->block_list_size;
+    int list_node_data_size = block_size * block_list_size;
+    int list_node_idx;
+    int block_idx;
+    int byte_idx;
+    int block_list_idx;
     ssize_t retval = 0;
 
     if (down_interruptible(&dev->sem))
@@ -102,21 +93,21 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     if (*f_pos + count > dev->size)
         count = dev->size - *f_pos;
 
-    item = (long)*f_pos / itemsize;
-    rest = (long)*f_pos % itemsize;
-    s_pos = rest / quantum;
-    q_pos = rest % quantum;
+    list_node_idx = (long)*f_pos / list_node_data_size;
+    block_list_idx = (long)*f_pos % list_node_data_size;
+    block_idx = block_list_idx / block_size;
+    byte_idx = block_list_idx % block_size;
 
-    dptr = scull_follow(dev, item);
+    dptr = scull_follow(dev, list_node_idx);
 
-    if (dptr == NULL || !dptr->data || !dptr->data[s_pos])
+    if (dptr == NULL || !dptr->data || !dptr->data[block_idx])
         goto out;
 
-    /* read only up to the end of this quantum */
-    if (count > quantum - q_pos)
-        count = quantum - q_pos;
+    /* read only up to the end of this block */
+    if (count > block_size - byte_idx)
+        count = block_size - byte_idx;
 
-    if (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)){
+    if (copy_to_user(buf, dptr->data[block_idx] + byte_idx, count)){
         retval = -EFAULT;
         goto out;
     }
@@ -132,50 +123,50 @@ out:
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
     struct scull_dev *dev = filp->private_data;
-    struct scull_qset *dptr;
-    int quantum = dev->quantum;
-    int qset = dev->qset;
-    int itemsize = quantum * qset;
-    int item;
-    int s_pos;
-    int q_pos;
-    int rest;
+    struct scull_list_node *dptr;
+    int block_size = dev->block_size;
+    int block_list_size = dev->block_list_size;
+    int list_node_data_size = block_size * block_list_size;
+    int list_node_idx;
+    int block_idx;
+    int byte_idx;
+    int block_list_idx;
     ssize_t retval = -ENOMEM;
 
     if (down_interruptible(&dev->sem))
         return -ERESTARTSYS;
 
-    // Convert byte offset to q_set index, quantum index, and byte offset in the quantum
-    item = (long)*f_pos / itemsize;
-    rest = (long)*f_pos % itemsize;
-    s_pos = rest / quantum;
-    q_pos = rest % quantum;
+    // Convert byte offset to q_set index, block index, and byte offset in the block
+    list_node_idx = (long)*f_pos / list_node_data_size;
+    block_list_idx = (long)*f_pos % list_node_data_size;
+    block_idx = block_list_idx / block_size;
+    byte_idx = block_list_idx % block_size;
 
-    // Traverse to the indicated quantum
-    dptr = scull_follow(dev,item);
+    // Traverse to the indicated block
+    dptr = scull_follow(dev,list_node_idx);
     if (!dptr){
         printk(KERN_WARNING "scull_dev isn't initialized.");
         goto out;
     }
     if (!dptr->data) {
-        dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
+        dptr->data = kmalloc(block_list_size * sizeof(char *), GFP_KERNEL);
         if (!dptr->data){
             goto out;
         }
-        memset(dptr->data, 0, qset * sizeof(char *));
+        memset(dptr->data, 0, block_list_size * sizeof(char *));
     }
-    if (!dptr->data[s_pos]) {
-        dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
-        if (!dptr->data[s_pos]){
+    if (!dptr->data[block_idx]) {
+        dptr->data[block_idx] = kmalloc(block_size, GFP_KERNEL);
+        if (!dptr->data[block_idx]){
             goto out;
         }
     }
 
-    // write only to the end of the quantum
-    if (count > quantum - q_pos)
-        count = quantum - q_pos;
+    // write only to the end of the block
+    if (count > block_size - byte_idx)
+        count = block_size - byte_idx;
 
-    if (copy_from_user(dptr->data[s_pos]+q_pos, buf, count)){
+    if (copy_from_user(dptr->data[block_idx]+byte_idx, buf, count)){
         retval = -EFAULT;
         goto out;
     }
