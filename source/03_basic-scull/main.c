@@ -36,7 +36,7 @@ static int scull_cdev_init(struct scull_dev *dev, int index)
 	result = cdev_add(&dev->cdev, devno, 1);
 
     if (result < 0) {
-		printk(KERN_NOTICE "Error %d adding basic-scull%d\n", result, index);
+		printk(KERN_WARNING "Error %d adding " MODULE_NAME "%d\n", result, index);
 		cdev_del(&dev->cdev);
     }
 
@@ -48,14 +48,7 @@ static int scull_dev_init(struct scull_dev *dev, int index)
 	int result = 0;
 
     // Initialize scull data structure
-    dev = kmalloc(sizeof(struct scull_dev), GFP_KERNEL);
-
-	if (!dev){
-		printk(KERN_WARNING "kmalloc failed on basic-scull%d init.\n", index);
-		return -ENOMEM;
-	}
-
-    dev->block_size = 4000;
+        dev->block_size = 4000;
     dev->block_list_size = 1000;
     dev->size = 0;
     dev->access_key = 0;
@@ -65,12 +58,6 @@ static int scull_dev_init(struct scull_dev *dev, int index)
     // Register char device
     result = scull_cdev_init(dev, index);
 
-    if (result < 0){
-		printk(KERN_NOTICE "Error %d adding basic-scull%d\n", result, index);
-        kfree(dev);
-        dev = NULL;
-    }
-
     return result;
 }
 
@@ -79,7 +66,7 @@ static int __init m_init(void)
 	int result = 0;
 	dev_t devno = MKDEV(scull_major, scull_minor);
 
-	printk(KERN_WARNING MODULE_NAME " loaded\n");
+	printk(KERN_NOTICE MODULE_NAME " loaded\n");
 
 	// If scull major is set to a non-zero value by the user, then use the supplied values
 	if (scull_major){
@@ -92,22 +79,32 @@ static int __init m_init(void)
 		scull_minor = MINOR(devno);
 	}
 	if (result < 0) {
-		printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
+		printk(KERN_ERR "scull: can't get major %d\n", scull_major);
 		return result;
 	}
 
 	for (int i=0; i<SCULL_NDEVS; i++) {
 
+		// Allocate memory for scull data structure
+		scull_dev[i] = kmalloc(sizeof(struct scull_dev), GFP_KERNEL);
+
+		if (!scull_dev[i]){
+			printk(KERN_WARNING "kmalloc failed on " MODULE_NAME "%d init.\n", i);
+			return -ENOMEM;
+		}
+
 		// Initialize the scull data structure which in turn registers the character device
 		result = scull_dev_init(scull_dev[i],i);
 
 		if (result < 0) {
-			printk(KERN_NOTICE "Error %d adding basic-scull%d\n", result, i);
 			// unregister character device and major number
 			devno = MKDEV(scull_major, scull_minor + i);
 			unregister_chrdev_region(devno, 1);
+			// free memory
+			kfree(scull_dev[i]);
+			scull_dev[i] = NULL;
 		} else {
-            printk(KERN_NOTICE "Loaded basic-scull%d\n", i);
+            printk(KERN_NOTICE "Loaded " MODULE_NAME "%d\n", i);
         }
 	}
 
@@ -117,13 +114,14 @@ static int __init m_init(void)
 static void __exit m_exit(void)
 {
 	dev_t devno;
-	printk(KERN_WARNING MODULE_NAME " unloaded\n");
+	printk(KERN_NOTICE MODULE_NAME " unloaded\n");
 
 	for (int i=0; i<SCULL_NDEVS; i++){
 		if (scull_dev[i]){
 			scull_trim(scull_dev[i]);
 			cdev_del(&scull_dev[i]->cdev);
 			kfree(scull_dev[i]);
+            printk(KERN_NOTICE "Unloaded " MODULE_NAME "%d\n", i);
 		}
 	}
 
