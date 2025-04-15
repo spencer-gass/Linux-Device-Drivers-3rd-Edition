@@ -1,6 +1,6 @@
 # Check if the KERNELRELEASE variable is set to determine the build context
 ifneq ($(KERNELRELEASE),)
-	basic-scull-objs := main.o basic-scull-file-ops.o
+	basic-scull-objs := main.o scull-file-ops.o
     obj-m := basic-scull.o
 
 # Fallback for direct invocation from the command line

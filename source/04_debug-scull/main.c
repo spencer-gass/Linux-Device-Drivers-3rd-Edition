@@ -7,7 +7,7 @@
 #include <linux/list.h>
 
 #include "main.h"
-#include "debug-scull-file-ops.h"
+#include "scull-file-ops.h"
 
 static int scull_major = 0;
 static int scull_minor = 0;

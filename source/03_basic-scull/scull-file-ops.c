@@ -4,7 +4,7 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include "main.h"
-#include "basic-scull-file-ops.h"
+#include "scull-file-ops.h"
 
 int scull_open(struct inode *inode, struct file *filp)
 {

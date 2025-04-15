@@ -1,5 +1,5 @@
-#ifndef _BASIC_SCULL_FILE_OPS_H
-#define _BASIC_SCULL_FILE_OPS_H
+#ifndef _SCULL_FILE_OPS_H
+#define _SCULL_FILE_OPS_H
 
 int scull_open(struct inode *inode, struct file *filp);
 int scull_release(struct inode *inode, struct file *filp);

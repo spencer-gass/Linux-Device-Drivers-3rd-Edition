@@ -11,11 +11,11 @@ endif
 ccflags-y := $(DEBFLAGS)
 # Per file CFLAGS
 CFLAGS_main.o := $(DEBFLAGS)
-CFLAGS_debug-scull-file-ops.o := $(DEBFLAGS)
+CFLAGS_scull-file-ops.o := $(DEBFLAGS)
 
 # Check if the KERNELRELEASE variable is set to determine the build context
 ifneq ($(KERNELRELEASE),)
-	debug-scull-objs := main.o debug-scull-file-ops.o
+	debug-scull-objs := main.o scull-file-ops.o
     obj-m := debug-scull.o
 
 # Fallback for direct invocation from the command line
