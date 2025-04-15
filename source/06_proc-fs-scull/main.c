@@ -2,7 +2,6 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
-#include <linux/cdev.h>
 #include <linux/slab.h>
 #include <linux/list.h>
 #include <linux/proc_fs.h>
@@ -16,6 +15,7 @@ static int scull_major = 0;
 static int scull_minor = 0;
 
 static struct scull_dev *scull_dev[SCULL_NDEVS];
+static char *scull_proc_fnames[SCULL_NDEVS];
 
 static struct file_operations scull_fops = {
 	.owner   	= THIS_MODULE,
@@ -96,6 +96,9 @@ static int __init m_init(void)
 		return result;
 	}
 
+	// Create a directory in /proc for our proc files
+	parent = proc_mkdir(SUB_DIR_NAME, NULL);
+
 	for (int i=0; i<SCULL_NDEVS; i++) {
 
 		// Allocate memory for scull data structure
@@ -119,15 +122,14 @@ static int __init m_init(void)
 		} else {
             printk(KERN_NOTICE "Loaded " MODULE_NAME "%d\n", i);
         }
+
+		// Create proc files
+		scull_proc_fnames[i] = kasprintf(GFP_KERNEL, PROC_FS_NAME "%d", i);
+		if (!proc_create_data(scull_proc_fnames[i], 0, parent, &proc_ops, scull_dev[i]))
+			return -ENOMEM;
 	}
 
-	// Create a directory in /proc for our proc files
-	parent = proc_mkdir(SUB_DIR_NAME, NULL);
-	// Create proc files
-    if (!proc_create_data(PROC_FS_NAME, 0, parent, &proc_ops, NULL))
-		return -ENOMEM;
-	else
-		return 0;
+	return 0;
 
 }
 
@@ -138,6 +140,7 @@ static void __exit m_exit(void)
 
 	for (int i=0; i<SCULL_NDEVS; i++){
 		if (scull_dev[i]){
+			remove_proc_entry(scull_proc_fnames[i], parent);
 			scull_trim(scull_dev[i]);
 			cdev_del(&scull_dev[i]->cdev);
 			kfree(scull_dev[i]);
@@ -145,12 +148,13 @@ static void __exit m_exit(void)
 		}
 	}
 
+	remove_proc_entry(SUB_DIR_NAME, NULL);
+
 	devno = MKDEV(scull_major, scull_minor);
 	// void unregister_chrdev_region(dev_t first, unsigned int count);
 	unregister_chrdev_region(devno, SCULL_NDEVS);
 
-	remove_proc_entry(PROC_FS_NAME, parent);
-	remove_proc_entry(SUB_DIR_NAME, NULL);
+
 }
 
 module_param(scull_major, int, S_IRUGO);

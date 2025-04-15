@@ -1,6 +1,8 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#include <linux/cdev.h>
+
 #define SCULL_NDEVS 4
 #define MODULE_NAME "proc-fs-scull"
 
