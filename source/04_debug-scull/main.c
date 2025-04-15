@@ -28,6 +28,8 @@ static int scull_cdev_init(struct scull_dev *dev, int index)
 {
 	int result;
 	dev_t devno = MKDEV(scull_major, scull_minor + index);
+	char devno_buf[20];
+	PDEBUG("device number %s\n", format_dev_t(devno_buf, devno));
 
 	cdev_init(&dev->cdev, &scull_fops);
 	dev->cdev.owner = THIS_MODULE;
