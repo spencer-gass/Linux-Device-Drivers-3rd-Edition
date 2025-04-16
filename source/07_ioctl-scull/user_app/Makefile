@@ -1,9 +1,9 @@
-BIN = scull-app
+BIN_NAME ?= scull-app
 
 all:
-	gcc -I.. -static -o $(BIN) main.c
+	gcc -I../driver -static -o $(BIN_NAME) main.c
 
 .PHONY: clean
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN_NAME)
