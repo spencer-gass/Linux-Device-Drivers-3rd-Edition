@@ -1,37 +1,21 @@
-# Uncomment to enable debug printks
-DEBUG = y
+.PHONY: all clean driver user_app install
+BIN_DIR = bin
 
-ifeq ($(DEBUG),y)
-	DEBFLAGS = -O -g -DSCULL_DEBUG
-else
-	DEBFLAGS = -O2
-endif
+all: driver user_app install
 
-# Global CFLAGS
-ccflags-y := $(DEBFLAGS)
-# Per file CFLAGS
-CFLAGS_main.o := $(DEBFLAGS)
-CFLAGS_scull-file-ops.o := $(DEBFLAGS)
+driver:
+	$(MAKE) -C driver
 
-# Check if the KERNELRELEASE variable is set to determine the build context
-ifneq ($(KERNELRELEASE),)
-	ioctl-scull-objs := main.o scull-file-ops.o
-    obj-m := ioctl-scull.o
+user_app:
+	$(MAKE) -C user_app BIN_NAME="scull-app"
 
-# Fallback for direct invocation from the command line
-else
+install: driver user_app
+	@mkdir -p $(BIN_DIR)
+	@cp driver/*.ko $(BIN_DIR)
+	@cp user_app/scull-app $(BIN_DIR)
 
-# Set the kernel directory and current working directory
-KERNELDIR ?= ${LDD_ROOT}/kernel/linux-6.8
-PWD := $(shell pwd)
-
-# Default target to build the specified module
-default:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
-
-# Clean target to remove build artifacts
-.PHONY: clean
 clean:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
-
-endif
+	$(MAKE) -C driver clean
+	$(MAKE) -C user_app clean
+	rm -f $(BIN_DIR)/*.ko
+	rm -f $(BIN_DIR)/scull-app
