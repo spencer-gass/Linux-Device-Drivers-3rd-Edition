@@ -1,4 +1,0 @@
-make -C /home/sgass/Projects/Personal/ldd3/kernel/linux-6.8 M=/home/sgass/Projects/Personal/ldd3/source/04_debug-scull modules
-make[1]: Entering directory '/home/sgass/Projects/Personal/ldd3/kernel/linux-6.8'
-  CC [M]  /home/sgass/Projects/Personal/ldd3/source/04_debug-scull/debug-scull-file-ops.o
-make[1]: Leaving directory '/home/sgass/Projects/Personal/ldd3/kernel/linux-6.8'
