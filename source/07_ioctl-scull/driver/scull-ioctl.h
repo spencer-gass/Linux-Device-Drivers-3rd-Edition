@@ -8,10 +8,11 @@
 #define IOCTL_APPEND    _IOW(IOCTL_IOC_MAGIC, 2, struct ioctl_arg*)
 
 #define IOCTL_MAXNR		2
+#define MAX_IOCTL_MSG_SIZE 1024
 
 struct ioctl_arg {
     int len;
-    char *msg;
+    char msg[MAX_IOCTL_MSG_SIZE];
 };
 
 #endif

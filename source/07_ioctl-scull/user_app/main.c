@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     char *dev_path = NULL;
     struct ioctl_arg arg = {
         .len = 0,
-        .msg = NULL
+        .msg = ""
     };
 
     if (argc < 2) {
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             return -1;
         }
         err = ioctl(fd, IOCTL_STATUS, &arg);
-        printf("%s", arg.msg);
+        printf("Driver status: %s\n", arg.msg);
         close(fd);
     }
     else if (strcmp(argv[2], "-a") == 0 || strcmp(argv[2], "--append") == 0) {
@@ -104,16 +104,16 @@ int main(int argc, char *argv[])
             return -1;
         }
         arg.len = strlen(argv[3]) + 1;  // +1 for '\0'
-        arg.msg = malloc(arg.len);
-        if (!arg.msg){
-            printf("Could not malloc a message buffer.");
-            return -1;
-        }
+        // arg.msg = malloc(arg.len);
+        // if (!arg.msg){
+        //     printf("Could not malloc a message buffer.");
+        //     return -1;
+        // }
         strcpy(arg.msg, argv[3]);
 
         err = ioctl(fd, IOCTL_APPEND, &arg);
         close(fd);
-        free(arg.msg);
+        // free(arg.msg);
     }
     else {
         printf("Unknown command: %s\n", argv[2]);
