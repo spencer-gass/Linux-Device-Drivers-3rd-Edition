@@ -69,6 +69,8 @@ int scull_trim(struct scull_dev *dev){
         kfree(dptr);
     }
 
+    dev->size = 0;
+
     return 0;
 }
 
@@ -111,19 +113,19 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
     dptr = scull_follow(dev, list_node_idx);
 
-    PDEBUG( "write: filp:                 %p\n", filp);
-    PDEBUG( "write: count:                %ld\n", count);
-    PDEBUG( "write: f_pos:                %p\n", f_pos);
-    PDEBUG( "write: scull dev:            %p\n", dev);
-    PDEBUG( "write: scull size:           %ld\n", dev->size);
-    PDEBUG( "write: node ptr:             %p\n", dptr);
-    PDEBUG( "write: block size:           %d\n", block_size);
-    PDEBUG( "write: block list size:      %d\n", block_list_size);
-    PDEBUG( "write: list node data size:  %d\n", list_node_data_size);
-    PDEBUG( "write: list node idx:        %d\n", list_node_idx);
-    PDEBUG( "write: block list idx:       %d\n", block_list_idx);
-    PDEBUG( "write: block idx:            %d\n", block_idx);
-    PDEBUG( "write: byte idx:             %d\n", byte_idx);
+    PDEBUG( "read: filp:                 %p\n", filp);
+    PDEBUG( "read: count:                %ld\n", count);
+    PDEBUG( "read: f_pos:                %p\n", f_pos);
+    PDEBUG( "read: scull dev:            %p\n", dev);
+    PDEBUG( "read: scull size:           %ld\n", dev->size);
+    PDEBUG( "read: node ptr:             %p\n", dptr);
+    PDEBUG( "read: block size:           %d\n", block_size);
+    PDEBUG( "read: block list size:      %d\n", block_list_size);
+    PDEBUG( "read: list node data size:  %d\n", list_node_data_size);
+    PDEBUG( "read: list node idx:        %d\n", list_node_idx);
+    PDEBUG( "read: block list idx:       %d\n", block_list_idx);
+    PDEBUG( "read: block idx:            %d\n", block_idx);
+    PDEBUG( "read: byte idx:             %d\n", byte_idx);
 
     if (dptr == NULL || !dptr->data || !dptr->data[block_idx])
         goto out;

@@ -59,6 +59,8 @@ int scull_trim(struct scull_dev *dev){
         kfree(dptr);
     }
 
+    dev->size = 0;
+
     return 0;
 }
 
