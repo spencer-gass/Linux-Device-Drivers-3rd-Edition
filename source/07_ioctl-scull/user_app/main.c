@@ -17,7 +17,7 @@ void print_help(char *progname)
     printf("commands:\n");
     printf("  -r, --reset             Reset the device state.\n");
     printf("  -s, --status            Query and print device configuration and status.\n");
-    printf("  -a, --append <string>   Append a message string to the device.\n");
+    printf("  -w, --write <string>    Write a message string to the device.\n");
     printf("  -h, --help              Show this help message and exit.\n\n");
 
     printf("Examples:\n");
@@ -27,8 +27,8 @@ void print_help(char *progname)
     printf("  %s /dev/scull -s\n", progname);
     printf("      Prints the current device status.\n\n");
 
-    printf("  %s /dev/scull -a \"hello\"\n", progname);
-    printf("      Appends the string \"hello\" to the device.\n\n");
+    printf("  %s /dev/scull -w \"hello\"\n", progname);
+    printf("      Writes the string \"hello\" to the device.\n\n");
 
     printf("  %s /dev/scull -h\n", progname);
     printf("      Prints this help text.\n");
@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     int err = 0;
     int fd = 0;
     char *dev_path = NULL;
+    size_t input_len = 0;
     struct ioctl_arg arg = {
         .len = 0,
         .msg = ""
@@ -92,9 +93,9 @@ int main(int argc, char *argv[])
         printf("Driver status: %s\n", arg.msg);
         close(fd);
     }
-    else if (strcmp(argv[2], "-a") == 0 || strcmp(argv[2], "--append") == 0) {
+    else if (strcmp(argv[2], "-w") == 0 || strcmp(argv[2], "--write") == 0) {
         if (argc < 4) {
-            printf("Append command requires an additional string argument\n");
+            printf("Write command requires an additional string argument\n");
             return -1;
         }
 
@@ -103,17 +104,19 @@ int main(int argc, char *argv[])
             printf("Could not open %s", dev_path);
             return -1;
         }
-        arg.len = strlen(argv[3]) + 1;  // +1 for '\0'
-        // arg.msg = malloc(arg.len);
-        // if (!arg.msg){
-        //     printf("Could not malloc a message buffer.");
-        //     return -1;
-        // }
-        strcpy(arg.msg, argv[3]);
 
-        err = ioctl(fd, IOCTL_APPEND, &arg);
+        input_len = strlen(argv[3]);
+        if (input_len >= MAX_IOCTL_MSG_SIZE) {
+            input_len = MAX_IOCTL_MSG_SIZE - 1;
+            printf("Warning: Input truncated to %d characters\n", MAX_IOCTL_MSG_SIZE - 1);
+        }
+
+        strncpy(arg.msg, argv[3], input_len);
+        arg.msg[input_len] = '\n';
+        arg.len = input_len + 1;  // +1 for '\0'
+
+        err = ioctl(fd, IOCTL_WRITE, &arg);
         close(fd);
-        // free(arg.msg);
     }
     else {
         printf("Unknown command: %s\n", argv[2]);
