@@ -238,6 +238,19 @@ int scull_reset(struct scull_dev *dev)
 
 int scull_status(struct scull_dev *dev, unsigned long argu)
 {
+    char status[23] = "String from the Kernel";
+    struct ioctl_arg argk = {
+        .len = 23,
+        .msg = ""
+    };
+
+    strcpy(argk.msg, status);
+
+    if (copy_to_user((void __user *)argu, &argk, sizeof(struct ioctl_arg))) {
+        printk(KERN_WARNING "Failed to copy to user space.");
+        return -EFAULT;
+    }
+
     return 0;
 }
 
@@ -245,7 +258,6 @@ int scull_append(struct scull_dev *dev, unsigned long argu)
 {
 
     struct ioctl_arg argk;
-    char *msg;
 
     if (!argu) {
         printk(KERN_WARNING "append message pointer is NULL");
@@ -261,20 +273,7 @@ int scull_append(struct scull_dev *dev, unsigned long argu)
         return -EINVAL;
     }
 
-    msg = kmalloc(argk.len, GFP_KERNEL);
-    if (!msg) {
-        printk(KERN_WARNING "Failed to allocate memory for append message.");
-        return -ENOMEM;
-    }
-
-    if (copy_from_user(msg, argk.msg, argk.len)) {
-        printk(KERN_WARNING "Failed to copy append message to kernel space.");
-        kfree(msg);
-        return -EFAULT;
-    }
-
-    PDEBUG("Append Message: %s", msg);
-    kfree(msg);
+    PDEBUG("Append Message: %s", argk.msg);
 
     return 0;
 }
