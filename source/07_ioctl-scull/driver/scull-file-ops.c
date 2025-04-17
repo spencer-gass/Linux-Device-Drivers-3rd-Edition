@@ -231,12 +231,60 @@ loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
     return 0;
 }
 
+int scull_reset(struct scull_dev *dev)
+{
+    return 0;
+}
+
+int scull_status(struct scull_dev *dev, unsigned long argu)
+{
+    return 0;
+}
+
+int scull_append(struct scull_dev *dev, unsigned long argu)
+{
+
+    struct ioctl_arg argk;
+    char *msg;
+
+    if (!argu) {
+        printk(KERN_WARNING "append message pointer is NULL");
+        return -EFAULT;
+    }
+    if (copy_from_user(&argk, (struct ioctl_arg __user *)argu, sizeof(struct ioctl_arg))){
+        printk(KERN_WARNING "Failed to copy append message to kernel space.");
+        return -EFAULT;
+    }
+
+    if (argk.len < 1){
+        printk(KERN_WARNING "Append message length is less than 1.");
+        return -EINVAL;
+    }
+
+    msg = kmalloc(argk.len, GFP_KERNEL);
+    if (!msg) {
+        printk(KERN_WARNING "Failed to allocate memory for append message.");
+        return -ENOMEM;
+    }
+
+    if (copy_from_user(msg, argk.msg, argk.len)) {
+        printk(KERN_WARNING "Failed to copy append message to kernel space.");
+        kfree(msg);
+        return -EFAULT;
+    }
+
+    PDEBUG("Append Message: %s", msg);
+    kfree(msg);
+
+    return 0;
+}
+
 long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 
     int err = 0;
     int retval = 0;
-    // struct scull_dev *dev = filp->private_data;
+    struct scull_dev *dev = filp->private_data;
 
     PDEBUG( "%s() is invoked\n", __FUNCTION__);
 
@@ -257,15 +305,15 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
     switch (cmd) {
     case IOCTL_RESET:
         PDEBUG("ioctl cmd: reset");
-        // retval = scull_reset(dev);
+        retval = scull_reset(dev);
         break;
     case IOCTL_STATUS:
         PDEBUG("ioctl cmd: status");
-        // retval = scull_status(dev, (void *__user)arg);
+        retval = scull_status(dev, arg);
         break;
     case IOCTL_APPEND:
         PDEBUG("ioctl cmd: append");
-        // retval = scull_append(dev, (void *__user)arg);
+        retval = scull_append(dev, arg);
         break;
     }
 
