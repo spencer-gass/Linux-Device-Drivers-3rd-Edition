@@ -179,11 +179,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     if (dev->size < *f_pos)
         dev->size = *f_pos;
 
-    out:
-        up(&dev->sem);
-        return retval;
-
-    return 0;
+out:
+    up(&dev->sem);
+    return retval;
 }
 
 loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
