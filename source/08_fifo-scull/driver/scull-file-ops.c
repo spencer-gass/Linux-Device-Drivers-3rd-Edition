@@ -32,7 +32,6 @@ int scull_open(struct inode *inode, struct file *filp)
 int scull_release(struct inode *inode, struct file *filp)
 {
     PDEBUG( "release, inode:%p, file:%p\n", inode, filp);
-
     return 0;
 }
 
