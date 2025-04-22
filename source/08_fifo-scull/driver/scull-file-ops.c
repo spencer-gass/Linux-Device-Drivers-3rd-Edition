@@ -8,21 +8,21 @@
 #include "scull-file-ops.h"
 #include "scull-ioctl.h"
 
-static inline int get_occupancy(struct scull_dev *dev){
+static inline int get_occupancy(struct scull_fif0_dev *dev){
     return (dev->wptr - dev->rptr) % dev->mem_size;
 }
 
-static inline int get_free_bytes(struct scull_dev *dev){
+static inline int get_free_bytes(struct scull_fif0_dev *dev){
     return dev->mem_size - get_occupancy(dev);
 }
 
 int scull_open(struct inode *inode, struct file *filp)
 {
-    struct scull_dev *dev;
-    // use a macro from linux/kernel.h to get the scull_dev pointer
+    struct scull_fif0_dev *dev;
+    // use a macro from linux/kernel.h to get the scull_fif0_dev pointer
     // That contains the cdev pointer from the inode pointer.
     // container_of(pointer, container_type, container_field);
-    dev = container_of(inode->i_cdev, struct scull_dev, cdev);
+    dev = container_of(inode->i_cdev, struct scull_fif0_dev, cdev);
     filp->private_data = dev;
     PDEBUG( "open, inode:%p, file:%p\n", inode, filp);
 
@@ -38,7 +38,7 @@ int scull_release(struct inode *inode, struct file *filp)
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
 
-    struct scull_dev *dev = filp->private_data;
+    struct scull_fif0_dev *dev = filp->private_data;
     int occupancy = get_occupancy(dev);
     ssize_t retval = 0;
 
@@ -76,7 +76,7 @@ out:
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
-    struct scull_dev *dev = filp->private_data;
+    struct scull_fif0_dev *dev = filp->private_data;
     int free_bytes = get_free_bytes(dev);
     ssize_t retval = -ENOMEM;
 
@@ -117,7 +117,7 @@ loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
 
 int scull_reset(struct file *filp){
 
-    struct scull_dev *dev = filp->private_data;
+    struct scull_fif0_dev *dev = filp->private_data;
 
     if (down_interruptible(&dev->wsem))
         return -ERESTARTSYS;
@@ -135,7 +135,7 @@ int scull_reset(struct file *filp){
 
 int scull_status(struct file *filp, unsigned long argu)
 {
-    struct scull_dev *dev = filp->private_data;
+    struct scull_fif0_dev *dev = filp->private_data;
     struct ioctl_arg argk = {
         .len = 0,
         .msg = ""
