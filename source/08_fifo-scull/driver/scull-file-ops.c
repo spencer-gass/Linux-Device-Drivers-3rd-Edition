@@ -3,8 +3,8 @@
 #include <linux/cdev.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
-#include "main.h"
 
+#include "main.h"
 #include "scull-file-ops.h"
 #include "scull-ioctl.h"
 
