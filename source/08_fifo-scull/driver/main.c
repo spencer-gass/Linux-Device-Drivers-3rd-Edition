@@ -13,7 +13,7 @@ static int scull_major = 0;
 static int scull_minor = 0;
 static int scull_fifo_size = 4096;
 
-static struct scull_fif0_dev *scull_fif0_dev[SCULL_NDEVS];
+static struct scull_fifo_dev *scull_fifo_dev[SCULL_NDEVS];
 
 static struct file_operations scull_fops = {
 	.owner   		= THIS_MODULE,
@@ -25,7 +25,7 @@ static struct file_operations scull_fops = {
 	.release 		= scull_release,
 };
 
-static int scull_cdev_init(struct scull_fif0_dev *dev, int index)
+static int scull_cdev_init(struct scull_fifo_dev *dev, int index)
 {
 	int result;
 	dev_t devno = MKDEV(scull_major, scull_minor + index);
@@ -46,14 +46,14 @@ static int scull_cdev_init(struct scull_fif0_dev *dev, int index)
 	return result;
 }
 
-static int scull_fif0_dev_init(struct scull_fif0_dev *dev, int index)
+static int scull_fifo_dev_init(struct scull_fifo_dev *dev, int index)
 {
 	int result = 0;
 
     // Initialize scull data structure
     dev->data = kmalloc(scull_fifo_size * sizeof(char), GFP_KERNEL);
     if (!dev->data){
-        printk(KERN_WARNING "Failed to kmalloc scull_fif0_dev data.\n");
+        printk(KERN_WARNING "Failed to kmalloc scull_fifo_dev data.\n");
         return -ENOMEM;
     }
     dev->wptr = dev->data;
@@ -87,23 +87,23 @@ static int __init m_init(void)
 	for (int i=0; i<SCULL_NDEVS; i++) {
 
 		// Allocate memory for scull data structure
-		scull_fif0_dev[i] = kmalloc(sizeof(struct scull_fif0_dev), GFP_KERNEL);
+		scull_fifo_dev[i] = kmalloc(sizeof(struct scull_fifo_dev), GFP_KERNEL);
 
-		if (!scull_fif0_dev[i]){
+		if (!scull_fifo_dev[i]){
 			printk(KERN_WARNING "kmalloc failed on " MODULE_NAME "%d init.\n", i);
 			return -ENOMEM;
 		}
 
 		// Initialize the scull data structure which in turn registers the character device
-		result = scull_fif0_dev_init(scull_fif0_dev[i],i);
+		result = scull_fifo_dev_init(scull_fifo_dev[i],i);
 
 		if (result < 0) {
 			// unregister character device and major number
 			devno = MKDEV(scull_major, scull_minor + i);
 			unregister_chrdev_region(devno, 1);
 			// free memory
-			kfree(scull_fif0_dev[i]);
-			scull_fif0_dev[i] = NULL;
+			kfree(scull_fifo_dev[i]);
+			scull_fifo_dev[i] = NULL;
 		} else {
             printk(KERN_NOTICE "Loaded " MODULE_NAME "%d\n", i);
         }
@@ -118,10 +118,10 @@ static void __exit m_exit(void)
 	printk(KERN_NOTICE MODULE_NAME " unloaded\n");
 
 	for (int i=0; i<SCULL_NDEVS; i++){
-		if (scull_fif0_dev[i]){
-			cdev_del(&scull_fif0_dev[i]->cdev);
-			kfree(scull_fif0_dev[i]->data);
-			kfree(scull_fif0_dev[i]);
+		if (scull_fifo_dev[i]){
+			cdev_del(&scull_fifo_dev[i]->cdev);
+			kfree(scull_fifo_dev[i]->data);
+			kfree(scull_fifo_dev[i]);
             printk(KERN_NOTICE "Unloaded " MODULE_NAME "%d\n", i);
 		}
 	}

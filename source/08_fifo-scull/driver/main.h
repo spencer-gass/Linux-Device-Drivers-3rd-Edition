@@ -19,7 +19,7 @@
 #endif
 
 // root struct that maintains scull device state
-struct scull_fif0_dev {
+struct scull_fifo_dev {
     char *data;                 // pointer to the first byte of the data memory
     char *wptr;                 // write pointer
     char *rptr;                 // read pointer
