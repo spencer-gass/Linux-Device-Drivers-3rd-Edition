@@ -37,7 +37,7 @@ int scull_dev_data_init(struct scull_dev *dev)
 {
     dev->data = kmalloc(sizeof(struct scull_list_node), GFP_KERNEL);
     if (!dev->data){
-        printk(KERN_WARNING "Failed to kmalloc scull_dev data");
+        printk(KERN_WARNING "Failed to kmalloc scull_dev data\n");
         return -ENOMEM;
     }
     dev->data->data = NULL;

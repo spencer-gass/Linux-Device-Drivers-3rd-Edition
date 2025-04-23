@@ -158,7 +158,7 @@ static int scull_status(struct file *filp, unsigned long argu)
     PDEBUG("Status Size: %d", argk.len);
 
     if (copy_to_user((void __user *)argu, &argk, sizeof(struct ioctl_arg))) {
-        printk(KERN_WARNING "Failed to copy to user space.");
+        printk(KERN_WARNING "Failed to copy to user space.\n");
         return -EFAULT;
     }
 
@@ -189,11 +189,11 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
     switch (cmd) {
     case IOCTL_RESET:
-        PDEBUG("ioctl cmd: reset");
+        PDEBUG("ioctl cmd: reset\n");
         retval = scull_reset(filp);
         break;
     case IOCTL_STATUS:
-        PDEBUG("ioctl cmd: status");
+        PDEBUG("ioctl cmd: status\n");
         retval = scull_status(filp, arg);
         break;
     }

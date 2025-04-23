@@ -38,7 +38,7 @@ int scull_dev_data_init(struct scull_dev *dev)
 {
     dev->data = kmalloc(sizeof(struct scull_list_node), GFP_KERNEL);
     if (!dev->data){
-        printk(KERN_WARNING "Failed to kmalloc scull_dev data");
+        printk(KERN_WARNING "Failed to kmalloc scull_dev data\n");
         return -ENOMEM;
     }
     dev->data->data = NULL;
@@ -189,7 +189,7 @@ static ssize_t scull_write_common(struct file *filp, const char *buf, size_t cou
     PDEBUG("%s: byte idx:             %d\n", operation, byte_idx);
 
     if (!dptr){
-        printk(KERN_WARNING "scull_dev isn't initialized.");
+        printk(KERN_WARNING "scull_dev isn't initialized.\n");
         goto out;
     }
     if (!dptr->data) {
@@ -268,10 +268,10 @@ static int scull_status(struct file *filp, unsigned long argu)
     argk.len += sprintf(argk.msg+argk.len, "Current Size:    %ld\n",dev->size );
     argk.len += sprintf(argk.msg+argk.len, "Semaphore State: %d\n", dev->sem.count);
 
-    PDEBUG("Status Size: %d", argk.len);
+    PDEBUG("Status Size: %d\n", argk.len);
 
     if (copy_to_user((void __user *)argu, &argk, sizeof(struct ioctl_arg))) {
-        printk(KERN_WARNING "Failed to copy to user space.");
+        printk(KERN_WARNING "Failed to copy to user space.\n");
         return -EFAULT;
     }
 
@@ -285,21 +285,21 @@ static int scull_ioctl_write(struct file *filp, unsigned long argu)
     int result;
 
     if (!argu) {
-        printk(KERN_WARNING "ioctl_write message pointer is NULL");
+        printk(KERN_WARNING "ioctl_write message pointer is NULL\n");
         return -EFAULT;
     }
     if (copy_from_user(&argk, (struct ioctl_arg __user *)argu, sizeof(struct ioctl_arg))) {
-        printk(KERN_WARNING "Failed to copy ioctl_write message to kernel space.");
+        printk(KERN_WARNING "Failed to copy ioctl_write message to kernel space.\n");
         return -EFAULT;
     }
 
     if (argk.len < 1) {
-        printk(KERN_WARNING "ioctl_write message length is less than 1.");
+        printk(KERN_WARNING "ioctl_write message length is less than 1.\n");
         return -EINVAL;
     }
 
-    PDEBUG("ioctl_write message: %s", argk.msg);
-    PDEBUG("ioctl_write length:  %d", argk.len);
+    PDEBUG("ioctl_write message: %s\n", argk.msg);
+    PDEBUG("ioctl_write length:  %d\n", argk.len);
 
     result = scull_write_common(filp, argk.msg, argk.len, &filp->f_pos, IS_KERNEL_BUF);
 
@@ -330,15 +330,15 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
     switch (cmd) {
     case IOCTL_RESET:
-        PDEBUG("ioctl cmd: reset");
+        PDEBUG("ioctl cmd: reset\n");
         retval = scull_reset(filp);
         break;
     case IOCTL_STATUS:
-        PDEBUG("ioctl cmd: status");
+        PDEBUG("ioctl cmd: status\n");
         retval = scull_status(filp, arg);
         break;
     case IOCTL_WRITE:
-        PDEBUG("ioctl cmd: ioctl_write");
+        PDEBUG("ioctl cmd: ioctl_write\n");
         retval = scull_ioctl_write(filp, arg);
         break;
     }

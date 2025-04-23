@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     if (strncmp(argv[1], "/dev", 4) == 0){
         dev_path = argv[1];
     } else {
-        printf("First argument must be a path to a device in /dev.");
+        printf("First argument must be a path to a device in /dev.\n");
         return -1;
     }
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[2], "-r") == 0 || strcmp(argv[2], "--reset") == 0) {
         fd = open(dev_path, O_RDONLY);
         if (fd < 0) {
-            printf("Could not open %s", dev_path);
+            printf("Could not open %s\n", dev_path);
             return -1;
         }
         err = ioctl(fd, IOCTL_RESET);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[2], "-s") == 0 || strcmp(argv[2], "--status") == 0) {
         fd = open(dev_path, O_RDONLY);
         if (fd < 0) {
-            printf("Could not open %s", dev_path);
+            printf("Could not open %s\n", dev_path);
             return -1;
         }
         err = ioctl(fd, IOCTL_STATUS, &arg);

@@ -195,11 +195,11 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
     switch (cmd) {
     case IOCTL_RESET:
-        PDEBUG("ioctl cmd: reset");
+        PDEBUG("ioctl cmd: reset\n");
         retval = scull_reset(filp);
         break;
     case IOCTL_STATUS:
-        PDEBUG("ioctl cmd: status");
+        PDEBUG("ioctl cmd: status\n");
         retval = scull_status(filp, arg);
         break;
     }

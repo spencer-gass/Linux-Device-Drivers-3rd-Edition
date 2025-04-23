@@ -53,7 +53,7 @@ static int scull_fif0_dev_init(struct scull_fif0_dev *dev, int index)
     // Initialize scull data structure
     dev->data = kmalloc(scull_fifo_size * sizeof(char), GFP_KERNEL);
     if (!dev->data){
-        printk(KERN_WARNING "Failed to kmalloc scull_fif0_dev data");
+        printk(KERN_WARNING "Failed to kmalloc scull_fif0_dev data.\n");
         return -ENOMEM;
     }
     dev->wptr = dev->data;

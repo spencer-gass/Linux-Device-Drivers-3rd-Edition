@@ -37,7 +37,7 @@ int scull_dev_data_init(struct scull_dev *dev)
 {
     dev->data = kmalloc(sizeof(struct scull_list_node), GFP_KERNEL);
     if (!dev->data){
-        printk(KERN_WARNING "Failed to kmalloc scull_dev data");
+        printk(KERN_WARNING "Failed to kmalloc scull_dev data\n");
         return -ENOMEM;
     }
     dev->data->data = NULL;
@@ -188,7 +188,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     PDEBUG( "write: byte idx:             %d\n", byte_idx);
 
     if (!dptr){
-        printk(KERN_WARNING "scull_dev isn't initialized.");
+        printk(KERN_WARNING "scull_dev isn't initialized.\n");
         goto out;
     }
     if (!dptr->data) {
