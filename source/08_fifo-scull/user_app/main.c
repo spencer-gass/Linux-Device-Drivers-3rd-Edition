@@ -12,12 +12,20 @@
 static
 void print_help(char *progname)
 {
-    printf("Usage: %s <device_path> <command> [string]\n\n", progname);
+    printf("Usage: %s <device_path> <command>\n\n", progname);
 
     printf("commands:\n");
+    printf("  -r, --reset             Resets device state.\n");
+    printf("  -s, --status            Prints device status.\n");
     printf("  -h, --help              Show this help message and exit.\n\n");
 
     printf("Examples:\n");
+    printf("  %s /dev/scull -r\n", progname);
+    printf("      Resets the device using the IOCTL_RESET command.\n\n");
+
+    printf("  %s /dev/scull -s\n", progname);
+    printf("      Prints the current device status.\n\n");
+
     printf("  %s /dev/scull -h\n", progname);
     printf("      Prints this help text.\n");
 }
