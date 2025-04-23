@@ -242,14 +242,14 @@ loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
     return 0;
 }
 
-int scull_reset(struct file *filp)
+static int scull_reset(struct file *filp)
 {
     struct scull_dev *dev = filp->private_data;
     scull_trim(dev);
     return scull_dev_data_init(dev);
 }
 
-int scull_status(struct file *filp, unsigned long argu)
+static int scull_status(struct file *filp, unsigned long argu)
 {
     struct scull_dev *dev = filp->private_data;
     struct ioctl_arg argk = {
@@ -279,7 +279,7 @@ int scull_status(struct file *filp, unsigned long argu)
 
 }
 
-int scull_ioctl_write(struct file *filp, unsigned long argu)
+static int scull_ioctl_write(struct file *filp, unsigned long argu)
 {
     struct ioctl_arg argk;
     int result;
