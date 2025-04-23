@@ -270,6 +270,11 @@ static int scull_status(struct file *filp, unsigned long argu)
 
     PDEBUG("Status Size: %d\n", argk.len);
 
+    if (argk.len > MAX_IOCTL_MSG_SIZE){
+        PDEBUG("Status string exceeded buffer and was truncated.\n");
+        argk.len = MAX_IOCTL_MSG_SIZE;
+    }
+
     if (copy_to_user((void __user *)argu, &argk, sizeof(struct ioctl_arg))) {
         printk(KERN_WARNING "Failed to copy to user space.\n");
         return -EFAULT;
