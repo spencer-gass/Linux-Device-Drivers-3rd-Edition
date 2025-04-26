@@ -7,11 +7,11 @@ all: $(BIN_NAME)
 $(BIN_NAME): $(OBJ)
 	gcc $(CFLAGS) -o $(BIN_NAME) $(OBJ)
 
-main.o:
+main.o: main.c
 	gcc $(CFLAGS) -c main.c
 
-test.o:
-	gcc -c test.c
+test.o: test.c test.h
+	gcc -pthread -c test.c
 
 clean:
 	rm -f $(BIN_NAME) $(OBJ)

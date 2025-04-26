@@ -18,7 +18,7 @@ void print_help(char *progname)
     printf("commands:\n");
     printf("  -r, --reset             Resets device state.\n");
     printf("  -s, --status            Prints device status.\n");
-    printf("  --set-mutex-semephore   Sets the read and write mutexs to use semephores.\n");
+    printf("  --set-mutex-semaphore   Sets the read and write mutexs to use semaphores.\n");
     printf("  --set-mutex-spinlock    Sets the read and write mutexs to use spinlocks.\n");
     printf("  -t, --test              Runs a perfomance test comparing the two mutex types.\n");
     printf("  -h, --help              Show this help message and exit.\n\n");
@@ -30,8 +30,8 @@ void print_help(char *progname)
     printf("  %s /dev/scull -s\n", progname);
     printf("      Prints the current device status.\n\n");
 
-    printf("  %s /dev/scull --set-mutex-semephore\n\n", progname);
-    printf("      Sets the read and write mutexs to use semephores.\n\n");
+    printf("  %s /dev/scull --set-mutex-semaphore\n\n", progname);
+    printf("      Sets the read and write mutexs to use semaphores.\n\n");
 
     printf("  %s /dev/scull --set-mutex-spinlock\n\n", progname);
     printf("      Sets the read and write mutexs to use spinlocks.\n\n");
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         printf("Driver status: %s\n", status.msg);
         close(fd);
     }
-    else if (strcmp(argv[2], "--set-mutex-semephore") == 0) {
+    else if (strcmp(argv[2], "--set-mutex-semaphore") == 0) {
         struct ioctl_mutex_config mutex_config = {
             .wr_mutex_type = SEMAPHORE,
             .rd_mutex_type = SEMAPHORE
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
         close(fd);
     }
     else if (strcmp(argv[2], "-t") == 0 || strcmp(argv[2], "--test") == 0) {
-        run_test(argv[1]);
+        run_test(dev_path);
     }
     else {
         printf("Unknown command: %s\n", argv[2]);

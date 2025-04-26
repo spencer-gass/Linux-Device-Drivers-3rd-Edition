@@ -44,13 +44,13 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     ssize_t retval = 0;
 
     if (!occupancy)
-        goto out;
+        goto print;
 
     if (count > occupancy)
         count = occupancy;
 
     if (down_interruptible(&dev->rsem))
-    return -ERESTARTSYS;
+        return -ERESTARTSYS;
 
     if (copy_to_user(buf, dev->rptr, count)){
         retval = -EFAULT;
@@ -59,12 +59,14 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
     dev->rptr = dev->rptr + count;
     if (dev->rptr > dev->data + dev->mem_size)
-    dev->rptr -= dev->mem_size;
+        dev->rptr -= dev->mem_size;
+
     retval = count;
 
 out:
     up(&dev->rsem);
 
+print:
     PDEBUG( "read: filp:                 %p\n",  filp);
     PDEBUG( "read: count:                %ld\n", count);
     PDEBUG( "read: scull dev:            %p\n",  dev);
