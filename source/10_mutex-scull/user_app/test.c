@@ -6,14 +6,6 @@
 
 #include "test.h"
 
-#define NUM_THREADS 8
-#define WRITE_BYTES_PER_THREAD 8
-
-struct thread_arg {
-    int id;
-    int fd;
-};
-
 int write_complete = 0;
 
 static void* src_func(void *arg){
@@ -23,8 +15,8 @@ static void* src_func(void *arg){
     char wchar;
 
     for (int i = 0; i < WRITE_BYTES_PER_THREAD; i ++){
-        char wchar = 'a' + i; //rand() % 26;
-        printf("src %d, file %d, wchar %c\n", id, fd, wchar);
+        char wchar = 'a' + rand() % 26;
+        // printf("src %d, file %d, wchar %c\n", id, fd, wchar);
 
         retval = write(fd, (void*) &wchar, 1);
         if (retval < 0){
@@ -44,7 +36,7 @@ static void* sink_func(void *arg){
         if (retval < 0){
             printf("Failed to read on thread %d\n", id);
         } else if (retval >= 0) {
-            printf("sink %d, file %d, rlen %d, rchar %c\n", id, fd, retval, rchar);
+            // printf("sink %d, file %d, rlen %d, rchar %c\n", id, fd, retval, rchar);
         }
     }
 }
@@ -89,14 +81,11 @@ int run_test(char *dev_path){
         pthread_join(src_threads[i], NULL);
     }
 
-    printf("write complete\n");
     write_complete = 1;
-
 
     for (i = 0; i < NUM_THREADS; i++){
         pthread_join(sink_threads[i], NULL);
     }
-
 
     return retval;
 }
