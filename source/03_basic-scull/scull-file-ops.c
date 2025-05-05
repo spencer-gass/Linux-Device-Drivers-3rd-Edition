@@ -185,9 +185,27 @@ out:
     return retval;
 }
 
-loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
+loff_t scull_llseek(struct file *filp, loff_t offset, int whence)
 {
-    return 0;
+    struct scull_dev *dev = filp->private_data;
+    loff_t newpos;
+
+    switch(whence){
+        case 0: // SEEK_SET
+            newpos = offset;
+            break;
+        case 1: // SEEK_CUR
+            newpos = filp->f_pos + offset;
+            break;
+        case 2: // SEEK_END
+            newpos = dev->size + offset;
+            break;
+        default:
+            return -EINVAL;
+    }
+    if (newpos < 0) return -EINVAL;
+    filp->f_pos = newpos;
+    return newpos;
 }
 
 int scull_ioctl(struct inode *inode, struct file *filp, unsigned int x, unsigned long y)

@@ -236,10 +236,29 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     return scull_write_common(filp, buf, count, f_pos, IS_USER_BUF);
 }
 
-loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
+loff_t scull_llseek(struct file *filp, loff_t offset, int whence)
 {
+    struct scull_dev *dev = filp->private_data;
+    loff_t newpos;
+
     PDEBUG( "llseek\n");
-    return 0;
+
+    switch(whence){
+        case 0: // SEEK_SET
+            newpos = offset;
+            break;
+        case 1: // SEEK_CUR
+            newpos = filp->f_pos + offset;
+            break;
+        case 2: // SEEK_END
+            newpos = dev->size + offset;
+            break;
+        default:
+            return -EINVAL;
+    }
+    if (newpos < 0) return -EINVAL;
+    filp->f_pos = newpos;
+    return newpos;
 }
 
 static int scull_reset(struct file *filp)

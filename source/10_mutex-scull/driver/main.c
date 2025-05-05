@@ -22,7 +22,7 @@ static struct file_operations scull_fops = {
 	.open    		= scull_open,
 	.read    		= scull_read,
 	.write   		= scull_write,
-	.llseek			= scull_llseek,
+	.llseek			= no_llseek,
 	.unlocked_ioctl	= scull_ioctl,
 	.release 		= scull_release,
 };

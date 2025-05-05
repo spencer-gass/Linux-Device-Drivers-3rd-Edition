@@ -25,6 +25,7 @@ int scull_open(struct inode *inode, struct file *filp)
     // container_of(pointer, container_type, container_field);
     dev = container_of(inode->i_cdev, struct scull_fifo_dev, cdev);
     filp->private_data = dev;
+    nonseekable_open(inode, filp);
     PDEBUG( "open, inode:%p, file:%p\n", inode, filp);
 
     return 0;
@@ -113,12 +114,6 @@ out:
     PDEBUG( "wrtie: scull write pointer:  %d\n",  (int)(dev->wptr - dev->data));
 
     return retval;
-}
-
-loff_t scull_llseek(struct file *filp, loff_t fpos, int x)
-{
-    PDEBUG( "llseek\n");
-    return 0;
 }
 
 static int scull_reset(struct file *filp){
